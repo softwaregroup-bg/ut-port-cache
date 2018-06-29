@@ -69,7 +69,7 @@ More information about how to configure the policy `options` and `segment` can b
 
 In the example above the port is configured to use [Redis](https://redis.io/) as a caching layer.
 
-A list of all ready-to-use catbox plugins can be found [here](https://github.com/hapijs/catbox#installation)
+A list of all ready-to-use catbox plugins can be found [here](https://github.com/hapijs/catbox#installation).
 
 ## Api
 
