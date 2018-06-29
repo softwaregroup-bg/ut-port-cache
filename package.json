@@ -1,0 +1,48 @@
+{
+  "name": "ut-port-cache",
+  "version": "0.1.0",
+  "description": "UT Port Cache",
+  "main": "index.js",
+  "scripts": {
+    "lint": "ut-lint .",
+    "release": "ut-release",
+    "changelog": "ut-changelog",
+    "check": "ut-check",
+    "cover": "ut-cover",
+    "precover": "ut-precover",
+    "lint-js": "ut-lint-js .",
+    "postpublish": "ut-postpublish",
+    "postversion": "ut-postversion",
+    "precommit": "ut-precommit",
+    "prepublish": "ut-prepublish",
+    "prepush": "ut-prepush",
+    "pretest": "ut-pretest",
+    "preversion": "ut-preversion",
+    "test": "ut-test",
+    "version": "ut-version",
+    "jenkins": "ut-jenkins",
+    "gitlab": "ut-gitlab"
+  },
+  "keywords": [
+    "cache",
+    "key-value",
+    "multi-strategy",
+    "catbox"
+  ],
+  "dependencies": {
+    "catbox": "^10.0.2"
+  },
+  "devDependencies": {
+    "ut-tools": "^5.32.10"
+  },
+  "author": "Software Group",
+  "bugs": {
+    "url": "https://github.com/softwaregroup-bg/ut-port-cache/issues"
+  },
+  "homepage": "https://github.com/softwaregroup-bg/ut-port-cache#readme",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:softwaregroup-bg/ut-port-cache.git"
+  },
+  "license": "Apache-2.0"
+}
