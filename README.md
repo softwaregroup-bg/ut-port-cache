@@ -140,8 +140,7 @@ By setting up the port using the [example](#A-full-example-illustrating-how-to-s
             * A promise rejecting to a `javascript exception`
 * `cache.foo.drop({id})`
     * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-        * `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping
+        * `id` - a unique item identifier string (per segment). Can be an empty string. for storing different sets of items with overlapping
     * returns
         * succes
             * A promise resolving to `undefined`
