@@ -12,8 +12,7 @@ This port can be used the same way as any other `ut` compliant port. E.g.
         {
             id: 'cache',
             createPort: require('ut-port-cache'),
-            logLevel: 'info',
-            concurrency: 100
+            logLevel: 'info'
             // other configuration options
             // ...
         }
@@ -25,7 +24,7 @@ This port can be used the same way as any other `ut` compliant port. E.g.
 ```
 For more information about how to bootstrap a `ut port` click [here](https://github.com/softwaregroup-bg/ut-run)
 
-## Specific configuration
+## Configuration
 
 Besides `id`, `logLevel`, `concurrency`, and other configuration options which are common for all ports, ut-port-cache defines 2 additional properties which are:
 * **`client`** - This object provides a low-level cache abstraction.
@@ -39,8 +38,9 @@ More information about how to configure the client `engine` and `options` can be
 
 More information about how to configure the policy `options` and `segment` can be found [here](https://github.com/hapijs/catbox#policy)
 
+Both client and policy are optional. If client engine is not provided then [catbox-memory](https://github.com/hapijs/catbox-memory) will be used by default. So therefore if you need to store data in memory only then omit the client.engine configuration and just pass client.options in case it is necessary to adjust [maxByteSize](https://github.com/hapijs/catbox-memory#options) or [allowMixedContent](https://github.com/hapijs/catbox-memory#options).
 
-### A full example illustrating how to setup a ut-cache-port
+### Example
 ```javascript
 {
     ports: [

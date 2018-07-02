@@ -12,7 +12,7 @@ module.exports = (params = {}) => {
                     id: 'cache',
                     logLevel: 'debug',
                     client: {// catbox extension
-                        engine: null, // catbox engine
+                        engine: require('catbox-memory'), // catbox default engine
                         options: {} // catbox engine options
                     },
                     policy: [/* {options, segment}, {options, segment} */] // array of catbox policies
@@ -25,7 +25,6 @@ module.exports = (params = {}) => {
                 });
             Object.assign(this.errors, errorsFactory(this.bus.errors));
         }
-
         init(...params) {
             const {engine, options} = this.config.client;
             this.client = new Catbox.Client(engine, options);
@@ -73,7 +72,6 @@ module.exports = (params = {}) => {
             });
             return superStartResult;
         }
-
         stop(...params) {
             this.client && this.client.stop();
             return super.stop(...params);
