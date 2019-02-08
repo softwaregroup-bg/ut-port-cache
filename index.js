@@ -1,10 +1,10 @@
 'use strict';
 const Catbox = require('catbox');
 const errors = require('./errors.json');
-module.exports = ({utPort, registerErrors}) => class CachePort extends utPort {
+module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends utPort {
     get defaults() {
         return {
-            id: 'cache',
+            type: 'cache',
             client: {// catbox extension
                 engine: require('catbox-memory'), // catbox default engine
                 options: {} // catbox engine options
@@ -22,16 +22,12 @@ module.exports = ({utPort, registerErrors}) => class CachePort extends utPort {
         await this.client.start();
         this.pull((msg = {}, $meta = {}) => {
             const method = $meta.method;
-            if (!method) {
-                throw this.bus.errors.missingMethod();
-            }
-            if (typeof this.config[method] !== 'function') {
-                throw this.bus.errors.methodNotFound({params: {method}});
-            }
-            return this.config[method](msg, $meta)
-                .catch(e => {
-                    throw this.errors.cache(e);
-                });
+            if (!method) throw utBus.errors['bus.missingMethod']();
+            const handler = this.methods[method.slice(method.indexOf('.') + 1)];
+            if (typeof handler !== 'function') throw utBus.errors['bus.methodNotFound']({params: {method}});
+            return handler(msg, $meta).catch(e => {
+                throw this.errors.cache(e);
+            });
         });
         return super.start(...params);
     }
