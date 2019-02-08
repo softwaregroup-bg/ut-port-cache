@@ -34,7 +34,8 @@
     "catbox-memory": "^3.1.2"
   },
   "devDependencies": {
-    "ut-tools": "^5.32.10"
+    "ut-tools": "^6.9.6",
+    "tap": "^12.5.2"
   },
   "author": "Software Group",
   "bugs": {
