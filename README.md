@@ -1,11 +1,14 @@
 # UT-PORT-CACHE
 
 ut-port-cache is a multi-strategy object caching port.
-It is a convinient wrapper for [catbox](https://github.com/hapijs/catbox) which in the same time provides the standard mechanisms for logging, monitoring, error handling, etc. inherited from [ut-port](https://github.com/softwaregroup-bg/ut-port).
+It is a convinient wrapper for [catbox](https://github.com/hapijs/catbox)
+which provides the standard mechanisms for logging, monitoring, error handling, etc.
+inherited from [ut-port](https://github.com/softwaregroup-bg/ut-port).
 
 ## Usage
 
 This port can be used the same way as any other `ut` compliant port. E.g.
+
 ```javascript
 {
     ports: [
@@ -22,25 +25,41 @@ This port can be used the same way as any other `ut` compliant port. E.g.
     // modules ...
 }
 ```
+
 For more information about how to bootstrap a `ut port` click [here](https://github.com/softwaregroup-bg/ut-run)
 
 ## Configuration
 
-Besides `id`, `logLevel`, `concurrency`, and other configuration options which are common for all ports, ut-port-cache defines 2 additional properties which are:
+Besides `id`, `logLevel`, `concurrency`, and other configuration options
+which are common for all ports,
+ut-port-cache defines 2 additional properties which are:
+
 * **`client`** - This object provides a low-level cache abstraction.
-    * `engine` - An object or a prototype function implementing the cache strategy
-    * `options` - The strategy configuration object
+  * `engine` - An object or a prototype function implementing the cache strategy
+  * `options` - The strategy configuration object
 
-More information about how to configure the client `engine` and `options` can be found [here](https://github.com/hapijs/catbox#client)
+More information about how to configure the client `engine` and `options`
+can be found [here](https://github.com/hapijs/catbox#client)
+
 * **`policy`**
-    * `options` - The policy configuration object
-    * `segment` - Used to isolate cached items within the cache partition
+  * `options` - The policy configuration object
+  * `segment` - Used to isolate cached items within the cache partition
 
-More information about how to configure the policy `options` and `segment` can be found [here](https://github.com/hapijs/catbox#policy)
+More information about how to configure the policy `options` and `segment`
+can be found [here](https://github.com/hapijs/catbox#policy)
 
-Both client and policy are optional. If client engine is not provided then [catbox-memory](https://github.com/hapijs/catbox-memory) will be used by default. So therefore if you need to store data in memory only then omit the client.engine configuration and just pass client.options in case it is necessary to adjust [maxByteSize](https://github.com/hapijs/catbox-memory#options) or [allowMixedContent](https://github.com/hapijs/catbox-memory#options).
+Both client and policy are optional.
+If client engine is not provided then
+[catbox-memory](https://github.com/hapijs/catbox-memory) will be used by default.
+So therefore if you need to store data in memory only
+then omit the client.engine configuration
+and just pass client.options in case it is necessary to adjust
+[maxByteSize](https://github.com/hapijs/catbox-memory#options)
+or
+[allowMixedContent](https://github.com/hapijs/catbox-memory#options).
 
-### Example
+### Configuration example
+
 ```javascript
 {
     ports: [
@@ -67,100 +86,134 @@ Both client and policy are optional. If client engine is not provided then [catb
 }
 ```
 
-In the example above the port is configured to use [Redis](https://redis.io/) as a caching layer.
+In the example above the port is configured to use
+[Redis](https://redis.io/) as a caching layer.
 
-A list of all ready-to-use catbox plugins can be found [here](https://github.com/hapijs/catbox#installation).
+A list of all ready-to-use catbox plugins can be found
+[here](https://github.com/hapijs/catbox#installation).
 
 ## Api
 
-By setting up the port using the [example](#A-full-example-illustrating-how-to-setup-a-ut-cache-port) above it will expose the following methods available through [ut-bus](https://github.com/softwaregroup-bg/ut-bus):
+By setting up the port using the
+[example](#A-full-example-illustrating-how-to-setup-a-ut-cache-port) above
+it will expose the following methods available through
+[ut-bus](https://github.com/softwaregroup-bg/ut-bus):
+
 * `cache.set({id, segment, value, ttl})`
-    * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-        * `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping ids.
-        * `value` - the string or object value to be stored.
-        * `ttl` - a time-to-live value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
-    * returns
-        * succes
-            * A promise resolving to `undefined`
-        * failure
-            * A promise rejecting to a `javascript exception`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+    * `segment` - a caching segment name string.
+    Enables using a single cache server
+    for storing different sets of items with overlapping ids.
+    * `value` - the string or object value to be stored.
+    * `ttl` - a time-to-live value in milliseconds
+    after which the item is automatically removed from the cache (or is marked invalid).
+  * returns
+    * succes
+      * A promise resolving to `undefined`
+    * failure
+      * A promise rejecting to a `javascript exception`
 * `cache.get({id, segment})`
-    * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-        * `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping
-    * returns
-        * succes
-            * A promise resolving to `null` if the item is not found
-            * otherwise, a promise resolving to an object with the following properties
-                * `item` - the value stored in the cache using set().
-                * `stored` - the timestamp when the item was stored in the cache (in milliseconds).
-                * `ttl` - the remaining time-to-live (not the original value used when storing the object).
-        * failure
-            * A promise rejecting to a `javascript exception`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+    * `segment` - a caching segment name string.
+    Enables using a single cache server
+    for storing different sets of items with overlapping
+  * returns
+    * succes
+      * A promise resolving to `null` if the item is not found
+      * otherwise, a promise resolving to an object with the following properties
+        * `item` - the value stored in the cache using set().
+        * `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+        * `ttl` - the remaining time-to-live
+        (not the original value used when storing the object).
+    * failure
+      * A promise rejecting to a `javascript exception`
 * `cache.drop({id, segment})`
-    * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-        * `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping
-    * returns
-        * succes
-            * A promise resolving to `undefined`
-        * failure
-            * A promise rejecting to a `javascript exception`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+    * `segment` - a caching segment name string.
+    Enables using a single cache server
+    for storing different sets of items with overlapping
+  * returns
+    * succes
+      * A promise resolving to `undefined`
+    * failure
+      * A promise rejecting to a `javascript exception`
 * `cache.foo.set({id, value, ttl})`
-     * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-        * `value` - the string or object value to be stored.
-        * `ttl` - a time-to-live value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
-    * returns
-        * succes
-            * A promise resolving to `undefined`
-        * failure
-            * A promise rejecting to a `javascript exception`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+    * `value` - the string or object value to be stored.
+    * `ttl` - a time-to-live value in milliseconds
+    after which the item is automatically removed
+    from the cache (or is marked invalid).
+  * returns
+    * succes
+      * A promise resolving to `undefined`
+    * failure
+      * A promise rejecting to a `javascript exception`
 * `cache.foo.get({id})`
-    * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string.
-    * returns
-        * succes
-            * A promise resolving to the requested item if found, otherwise to `null`.
-            * If `getDecoratedValue` is `true`, then a promise resolving to an object with the following properties:
-                * `value` - the fetched or generated value.
-                * `cached` - null if a valid item was not found in the cache, or an object with the following keys:
-                    * `item` - the cached value.
-                    * `stored` - the timestamp when the item was stored in the cache.
-                    * `ttl` - the cache ttl value for the record.
-                    * `isStale` - true if the item is stale.
-                * `report` - an object with logging information about the generation operation containing the following keys (as relevant):
-                    * `msec` - the cache lookup time in milliseconds.
-                    * `stored` - the timestamp when the item was stored in the cache.
-                    * `isStale` - true if the item is stale.
-                    * `ttl` - the cache ttl value for the record.
-                    * `error` - lookup error.
-        * failure
-            * A promise rejecting to a `javascript exception`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+  * returns
+    * succes
+      * A promise resolving to the requested item if found, otherwise to `null`.
+      * If `getDecoratedValue` is `true`,
+      then a promise resolving to an object with the following properties:
+        * `value` - the fetched or generated value.
+        * `cached` - null if a valid item was not found in the cache,
+        or an object with the following keys:
+          * `item` - the cached value.
+          * `stored` - the timestamp when the item was stored in the cache.
+          * `ttl` - the cache ttl value for the record.
+          * `isStale` - true if the item is stale.
+        * `report` - an object with logging information
+        about the generation operation containing the following keys (as relevant):
+          * `msec` - the cache lookup time in milliseconds.
+          * `stored` - the timestamp when the item was stored in the cache.
+          * `isStale` - true if the item is stale.
+          * `ttl` - the cache ttl value for the record.
+          * `error` - lookup error.
+    * failure
+      * A promise rejecting to a `javascript exception`
 * `cache.foo.drop({id})`
-    * params
-        * `id` - a unique item identifier string (per segment). Can be an empty string. for storing different sets of items with overlapping
-    * returns
-        * succes
-            * A promise resolving to `undefined`
-        * failure
-            * A promise rejecting to a `javascript exception`
-* `cache.bar.set({id, value, ttl})` -  same signature as `cache.foo.set({id, value, ttl})`
-* `cache.bar.get({id})` -  same signature as `cache.foo.get({id})`
-* `cache.bar.drop({id})` -  same signature as `cache.foo.drop({id})`
+  * params
+    * `id` - a unique item identifier string (per segment).
+    Can be an empty string.
+    For storing different sets of items with overlapping
+  * returns
+    * succes
+      * A promise resolving to `undefined`
+    * failure
+      * A promise rejecting to a `javascript exception`
+* `cache.bar.set({id, value, ttl})` - same as `cache.foo.set({id, value, ttl})`
+* `cache.bar.get({id})` - same as `cache.foo.get({id})`
+* `cache.bar.drop({id})` - same as `cache.foo.drop({id})`
 
 In summary the following happens
-Methods `get`, `set` and `drop` get registered by the top level cache client and the same set of methods get registered for each policy.
-The main difference is that the methods of the global cache object require that a `segment` is passed each time, while the policy methods don't as the segment is part of their names: i.e. each method has the signature: `${portId}.${segment}.${operation}`.
-Also the `policy` object provides a convenient cache interface by setting a global policy which is automatically applied to every storage action, and the response from the policy `get` method varies based on the global `getDecoratedValue` configuration.
-
+Methods `get`, `set` and `drop` get registered by the top level cache client
+and the same set of methods get registered for each policy.
+The main difference is that the methods of the global cache object
+require that a `segment` is passed each time,
+while the policy methods don't as the segment is part of their names:
+i.e. each method has the signature: `${portId}.${segment}.${operation}`.
+Also the `policy` object provides a convenient cache interface
+by setting a global policy which is automatically applied to every storage action,
+and the response from the policy `get` method varies
+based on the global `getDecoratedValue` configuration.
 
 ## Example
 
-This is a trivial example illustrating the resquest/response signatures of all different methods.
+This is a trivial example
+illustrating the resquest/response signatures of all different methods.
 
-Note: Assumming we are in the scope of a funciton which has a reference to `ut-bus` bound to its context.
+Note: Assumming we are in the scope of a funciton
+which has a reference to `ut-bus` bound to its context.
 
 ```javascript
 const segment = 'global';
@@ -241,7 +294,8 @@ Promise.resolve()
     });
 ```
 
-Before starting to drop the records in step 5 the redis store will have the following contents:
+Before starting to drop the records in step 5
+the redis store will have the following contents:
 
 | key  | value |
 | ---- | ----- |
