@@ -1,3 +1,6 @@
 {
-
+    "portCache": "Cache error",
+    "portCache.missingId": "Method {methodName} cache called without $meta.cache.key.id",
+    "portCache.missingCache": "Method {methodName} cache called without $meta.cache",
+    "portCache.invalidOperation": "Method {methodName} cache called with invalid $meta.cache.operation=${operation}"
 }
