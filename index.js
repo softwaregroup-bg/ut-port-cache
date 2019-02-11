@@ -56,12 +56,12 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
     get({id, segment}) {
         return this.client.get({id, segment});
     }
-    set({id, segment, value, ttl = this.config.ttl}) {
-        this.client.set({id, segment}, value, ttl);
+    async set({id, segment, value, ttl = this.config.ttl}) {
+        await this.client.set({id, segment}, value, ttl);
         return null;
     }
-    drop({id, segment}) {
-        this.client.drop({id, segment});
+    async drop({id, segment}) {
+        await this.client.drop({id, segment});
         return null;
     }
     handlers() {
