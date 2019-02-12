@@ -1,38 +1,21 @@
-# UT-PORT-CACHE
+# ut-port-cache
 
-ut-port-cache is a multi-strategy object caching port.
+`ut-port-cache` is a multi-strategy object caching port.
 It is a convinient wrapper for [catbox](https://github.com/hapijs/catbox)
-which provides the standard mechanisms for logging, monitoring, error handling, etc.
-inherited from [ut-port](https://github.com/softwaregroup-bg/ut-port).
+and provides on top of that the standard `ut` mechanisms for logging,
+monitoring, error handling, etc. inherited from
+[ut-port](https://github.com/softwaregroup-bg/ut-port).
 
 ## Usage
 
-This port can be used the same way as any other `ut` compliant port. E.g.
-
-```javascript
-{
-    ports: [
-        {
-            id: 'cache',
-            createPort: require('ut-port-cache'),
-            logLevel: 'info'
-            // other configuration options
-            // ...
-        }
-        // other ports
-        //...
-    ]
-    // modules ...
-}
-```
-
+This port can be used the same way as any other `ut` compliant port.
 For more information about how to bootstrap a `ut port` click [here](https://github.com/softwaregroup-bg/ut-run)
 
 ## Configuration
 
-Besides `id`, `logLevel`, `concurrency`, and other configuration options
-which are common for all ports,
-ut-port-cache defines 2 additional properties which are:
+Besides `logLevel`, `concurrency`, and other configuration options
+which are common for all ports, ut-port-cache defines 2 additional
+properties:
 
 * **`client`** - This object provides a low-level cache abstraction.
   * `engine` - An object or a prototype function implementing the cache strategy
@@ -61,28 +44,23 @@ or
 ### Configuration example
 
 ```javascript
-{
-    ports: [
-        {
-            id: 'cache',
-            createPort: require('ut-port-cache'),
-            logLevel: 'info',
-            client: {
-                engine: require('catbox-redis'),
-                options: {} // catbox-redis options
-            },
+function cache() {
+    return class cache extends require('ut-port-cache')(...arguments) {
+        get defaults() {
+            engine: require('catbox-redis'),
+            options: {} // catbox-redis options
             policy: [
                 {
-                    segment: 'foo',
-                    options: {} // x policy options
+                    segment: 'module.foo.get',
+                    options: {} // segment 'module.foo.get' options
                 },
                 {
                     segment: 'bar',
-                    options: {} // x policy options
+                    options: {} // segment 'bar' options
                 }
             ]
         }
-    ]
+    };
 }
 ```
 
@@ -92,204 +70,107 @@ In the example above the port is configured to use
 A list of all ready-to-use catbox plugins can be found
 [here](https://github.com/hapijs/catbox#installation).
 
-## Api
+## API
 
 By setting up the port using the
-[example](#A-full-example-illustrating-how-to-setup-a-ut-cache-port) above
-it will expose the following methods available through
-[ut-bus](https://github.com/softwaregroup-bg/ut-bus):
+[example](#configuration-example) above it will expose the following set of
+methods available through [ut-bus](https://github.com/softwaregroup-bg/ut-bus):
 
-* `cache.set({id, segment, value, ttl})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-    * `segment` - a caching segment name string.
-    Enables using a single cache server
-    for storing different sets of items with overlapping ids.
-    * `value` - the string or object value to be stored.
-    * `ttl` - a time-to-live value in milliseconds
-    after which the item is automatically removed from the cache (or is marked invalid).
-  * returns
-    * succes
-      * A promise resolving to `undefined`
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.get({id, segment})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-    * `segment` - a caching segment name string.
-    Enables using a single cache server
-    for storing different sets of items with overlapping
-  * returns
-    * succes
-      * A promise resolving to `null` if the item is not found
-      * otherwise, a promise resolving to an object with the following properties
-        * `item` - the value stored in the cache using set().
-        * `stored` - the timestamp when the item was stored in the cache (in milliseconds).
-        * `ttl` - the remaining time-to-live
-        (not the original value used when storing the object).
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.drop({id, segment})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-    * `segment` - a caching segment name string.
-    Enables using a single cache server
-    for storing different sets of items with overlapping
-  * returns
-    * succes
-      * A promise resolving to `undefined`
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.foo.set({id, value, ttl})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-    * `value` - the string or object value to be stored.
-    * `ttl` - a time-to-live value in milliseconds
-    after which the item is automatically removed
-    from the cache (or is marked invalid).
-  * returns
-    * succes
-      * A promise resolving to `undefined`
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.foo.get({id})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-  * returns
-    * succes
-      * A promise resolving to the requested item if found, otherwise to `null`.
-      * If `getDecoratedValue` is `true`,
-      then a promise resolving to an object with the following properties:
-        * `value` - the fetched or generated value.
-        * `cached` - null if a valid item was not found in the cache,
-        or an object with the following keys:
-          * `item` - the cached value.
-          * `stored` - the timestamp when the item was stored in the cache.
-          * `ttl` - the cache ttl value for the record.
-          * `isStale` - true if the item is stale.
-        * `report` - an object with logging information
-        about the generation operation containing the following keys (as relevant):
-          * `msec` - the cache lookup time in milliseconds.
-          * `stored` - the timestamp when the item was stored in the cache.
-          * `isStale` - true if the item is stale.
-          * `ttl` - the cache ttl value for the record.
-          * `error` - lookup error.
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.foo.drop({id})`
-  * params
-    * `id` - a unique item identifier string (per segment).
-    Can be an empty string.
-    For storing different sets of items with overlapping
-  * returns
-    * succes
-      * A promise resolving to `undefined`
-    * failure
-      * A promise rejecting to a `javascript exception`
-* `cache.bar.set({id, value, ttl})` - same as `cache.foo.set({id, value, ttl})`
-* `cache.bar.get({id})` - same as `cache.foo.get({id})`
-* `cache.bar.drop({id})` - same as `cache.foo.drop({id})`
+* `bus.importMethod('cache/module.entity.action')(value, {cache})`
 
-In summary the following happens
-Methods `get`, `set` and `drop` get registered by the top level cache client
-and the same set of methods get registered for each policy.
-The main difference is that the methods of the global cache object
-require that a `segment` is passed each time,
-while the policy methods don't as the segment is part of their names:
-i.e. each method has the signature: `${portId}.${segment}.${operation}`.
-Also the `policy` object provides a convenient cache interface
-by setting a global policy which is automatically applied to every storage action,
-and the response from the policy `get` method varies
-based on the global `getDecoratedValue` configuration.
+  * `module.entity.action` is arbitrary string, usually corresponding to a
+  namespaced method call and helps in determining the segment
+  * `value` is the value for the cache operation
+  * `cache` determines the cache operation and parameters and has the following
+  structire {`operation`, `ttl`, `key`: {`id`, `params`, `segment`}}, where:
+    * `operation` is one of 'get', 'set', 'drop' and determines what to do.
+    * `ttl` is optional time to keep the `value` in the cache,
+    when operation is 'set', with default taken from port configuration
+    property `ttl`
+    * `key` determines the cache key, as per following:
+      * `id` - unique string value per cache segment
+      * `segment` - if specified non falsy value, defines the cache segment
+      * `params` - if segment is falsy, this helps for deremining cache segmet
+        as per following rules:
+        * if it is object, the cache segment is constructed by deterministically
+        converting the object to URL parameters, for example if
+        `params={x:1, y: 2}`, the segment becomes 'module.entity.action?x=1&y=2'
+        * if it is truthy, it is converted to string and appended as query string,
+        for example if `params='xyz'`, the cache segment is 'module.entity.action?xyz'
+        * otherwise, the cache segment is simply 'module.entity.action'
+  * `return` value is determined by cache operation as follows:
+    * rejected promise when error happened during any of the cache operations
+    * promise resolving to `null`, when 'set' operation was successful
+    * promise resolving to `null`, when 'drop' operation was successful
+    * promise resolving `null`, when 'get' resulted in cache miss
+    * promise resolving to the cached value, when 'get' operation resulted
+    in cache hit
 
 ## Example
 
-This is a trivial example
-illustrating the resquest/response signatures of all different methods.
-
-Note: Assumming we are in the scope of a funciton
-which has a reference to `ut-bus` bound to its context.
+This is a trivial example illustrating the resquest/response signatures of all
+different methods.
 
 ```javascript
 const segment = 'global';
 const id = 'asd';
-const value = {x: 1, y: 2};
+const valueFoo = {x: 1, y: 2};
+const valueBar = [1, 2];
 Promise.resolve()
-    .then(result => {
-        // step 1
-        return this.importMethod('cache.foo.set')({id, value, ttl: 999999});
-    })
-    .then(result => {
-        // step 2
-        // resultr is undefined
-        return this.importMethod('cache.set')({id, segment, value, ttl: 999999});
-    })
-    .then(result => {
-        // step 3
-        // result is undefined
-        return this.importMethod('cache.foo.get')({id});
-    })
-    .then(result => {
-        // step 4
-        // result is
-        /* {
-            "x": 1,
-            "y": 2
-        } */
-        // if getDecoratedValue is true then result would be something like
-        /* {
-            "value": {
-                "x": 1,
-                "y": 2
-            },
-            "cached": {
-                "item": {
-                    "x": 1,
-                    "y": 2
-                },
-                "stored": 1530270725446,
-                "ttl": 958016,
-                "isStale": false
-            },
-            "report": {
-                "msec": 19.019037008285522,
-                "stored": 1530270725446,
-                "ttl": 958016,
-                "isStale": false
+    .then(result => { // step 1
+        return bus.importMethod('cache/module.foo.get')(valueFoo, {
+            cache:{
+                operation:'set',
+                ttl: 999999,
+                key:{id}
             }
-        } */
-        return this.importMethod('cache.get')({id, segment});
+        });
     })
-    .then(result => {
-        // step 5
-        // result is
-        /* {
-            "item": {
-                "x": 1,
-                "y": 2
-            },
-            "stored": 1530271029367,
-            "ttl": 995804
-        } */
-        return this.importMethod('cache.foo.drop')({id});
+    .then(result => { // step 2, result is null
+        return bus.importMethod('cache/module.bar.get')(valueBar, {
+            cache:{
+                operation:'set',
+                ttl: 999999,
+                key:{id, segment: 'bar'}
+            }
+        });
     })
-    .then(result => {
-        // step 6
-        // result is undefined
-        return this.importMethod('cache.drop')({id, segment});
+    .then(result => { // step 3, result is null
+        return bus.importMethod('cache/module.foo.get')(undefined, {
+            cache:{
+                operation:'get',
+                key:{id}
+            }
+        });
     })
-    .then(result => {
-        // step 7
-        // result is undefined
+    .then(result => { // step 4, result is { "x": 1, "y": 2 }
+        return bus.importMethod('cache/module.bar.get')(undefined, {
+            cache:{
+                operation:'get',
+                key:{id, segment: 'bar'}
+            }
+        });
+    })
+    .then(result => { // step 5, result is [1, 2]
+        return bus.importMethod('cache/module.foo.get')(undefined, {
+            cache:{
+                operation:'drop',
+                key:{id}
+            }
+        });
+    })
+    .then(result => { // step 6 result is null
+        return bus.importMethod('cache/module.bar.get')(undefined, {
+            cache:{
+                operation:'drop',
+                key:{id, segment: 'bar'}
+            }
+        });
+    })
+    .then(result => { // step 7 result is null
         return result;
     })
-    .catch(e => {
-        // an exception in case any of the above calls fail
+    .catch(e => { // an exception in case any of the above calls fail
         throw e;
     });
 ```
@@ -297,7 +178,7 @@ Promise.resolve()
 Before starting to drop the records in step 5
 the redis store will have the following contents:
 
-| key  | value |
-| ---- | ----- |
-| catbox:global:asd  | {"item":{"x":1,"y":2},"stored":1530272083811,"ttl":999999}  |
-| catbox:foo:asd  | {"item":{"x":1,"y":2},"stored":1530272083808,"ttl":999999}  |
+| **key**                | **value**                                                   |
+| ---------------------- | ----------------------------------------------------------- |
+| catbox:module.foo.get  | {"item":{"x":1,"y":2},"stored":1530272083808,"ttl":999999}  |
+| catbox:bar             | {"item":[1,2],"stored":1530272083811,"ttl":999999}          |
