@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.1.4...v0.2.0) (2019-02-12)
+
+
+### Features
+
+* handle $meta.cache ([#4](https://github.com/softwaregroup-bg/ut-port-cache/issues/4)) ([75c88b5](https://github.com/softwaregroup-bg/ut-port-cache/commit/75c88b5))
+
+
+
 ## [0.1.4](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.1.3...v0.1.4) (2019-02-08)
 
 
