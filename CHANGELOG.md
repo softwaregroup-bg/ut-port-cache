@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.2.1...v0.2.2) (2019-02-14)
+
+
+### Bug Fixes
+
+* fix error handling ([2727998](https://github.com/softwaregroup-bg/ut-port-cache/commit/2727998))
+
+
+
 ## [0.2.1](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.2.0...v0.2.1) (2019-02-12)
 
 
