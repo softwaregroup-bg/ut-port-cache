@@ -30,8 +30,8 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
         let methodName = $meta && $meta.method;
         if (!methodName) throw utBus.errors['bus.missingMethod']();
         let cache = $meta && $meta.cache;
-        if (!cache) throw this.errors['cachePort.missingCache']({methodName});
-        if (!['get', 'set', 'drop'].includes(cache.operation)) throw this.errors['cachePort.missingOperation']({methodName, operation: cache.operation});
+        if (!cache) throw this.errors['cachePort.missingCache']({params: {methodName}});
+        if (!['get', 'set', 'drop'].includes(cache.operation)) throw this.errors['cachePort.missingOperation']({params: {methodName, operation: cache.operation}});
         let segment = cache.key && cache.key.segment;
         if (!segment) {
             let cacheParams = cache.key && cache.key.params;
@@ -43,7 +43,7 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
         }
         let id = cache.key && cache.key.id;
         if (id == null) {
-            throw this.errors['cachePort.missingId']({methodName});
+            throw this.errors['cachePort.missingId']({params: {methodName}});
         }
         try {
             let fn = this.methods[segment] || this;
