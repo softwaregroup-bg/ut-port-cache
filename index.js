@@ -25,13 +25,13 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
         this.pull(this.exec);
         return super.start(...params);
     }
-    async exec(...params) {
+    exec(...params) {
         let $meta = params && params.length > 1 && params[params.length - 1];
         let methodName = $meta && $meta.method;
         if (!methodName) throw utBus.errors['bus.missingMethod']();
         let cache = $meta && $meta.cache;
         if (!cache) throw this.errors['cachePort.missingCache']({params: {methodName}});
-        if (!['get', 'set', 'drop'].includes(cache.operation)) throw this.errors['cachePort.missingOperation']({params: {methodName, operation: cache.operation}});
+        if (!['get', 'set', 'drop', 'touch'].includes(cache.operation)) throw this.errors['cachePort.missingOperation']({params: {methodName, operation: cache.operation}});
         let segment = cache.key && cache.key.segment;
         if (!segment) {
             let cacheParams = cache.key && cache.key.params;
@@ -46,35 +46,44 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
             throw this.errors['cachePort.missingId']({params: {methodName}});
         }
         try {
-            let fn = this.methods[segment] || this;
-            let cached = await fn[cache.operation].call(this, {id, segment, value: params[0], ttl: cache.ttl});
-            return cached && cached.item;
+            if (!this.methods[segment]) this.methods[segment] = this.createPolicy({segment});
+            return this.methods[segment][cache.operation].call(this, {id, value: params[0], ttl: cache.ttl});
         } catch (e) {
             throw this.errors.cachePort(e);
         };
     }
-    get({id, segment}) {
-        return this.client.get({id, segment});
-    }
-    async set({id, segment, value, ttl = this.config.ttl}) {
-        await this.client.set({id, segment}, value, ttl);
-        return null;
-    }
-    async drop({id, segment}) {
-        await this.client.drop({id, segment});
-        return null;
+    createPolicy({options, segment}) {
+        const policyOptions = {...options, getDecoratedValue: true};
+        const policy = new Catbox.Policy(policyOptions, this.client, segment);
+        return {
+            async get({id}) {
+                const result = await policy.get(id);
+                return result.cached === null ? null : result.cached.item;
+            },
+            async set({id, value, ttl = this.config.ttl}) {
+                await policy.set(id, value, ttl);
+                return value;
+            },
+            async drop({id}) {
+                await policy.drop(id);
+                return null;
+            },
+            async touch({id, value}) {
+                const policy = new Catbox.Policy({
+                    ...policyOptions,
+                    generateTimeout: false,
+                    generateFunc: (...params) => typeof value === 'function' ? value(...params) : value
+                }, this.client, segment);
+                const result = await policy.get(id);
+                return result.cached === null ? null : result.cached.item;
+            }
+        };
     }
     handlers() {
         const handlers = {};
         if (Array.isArray(this.config.policy)) {
-            this.config.policy.forEach(policyConfig => {
-                const {options = {}, segment} = policyConfig;
-                const policy = new Catbox.Policy(options, this.client, segment);
-                handlers[segment] = {
-                    get: ({id}) => policy.get(id),
-                    set: ({id, value, ttl = this.config.ttl}) => policy.set(id, value, ttl),
-                    drop: ({id}) => policy.drop(id)
-                };
+            this.config.policy.forEach(({options, segment}) => {
+                handlers[segment] = this.createPolicy({options, segment});
             });
         }
         return handlers;
