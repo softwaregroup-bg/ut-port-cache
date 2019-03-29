@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.2.2...v0.3.0) (2019-03-29)
+
+
+### Features
+
+* implement touch and set ([fd5ccf7](https://github.com/softwaregroup-bg/ut-port-cache/commit/fd5ccf7))
+
+
+
 ## [0.2.2](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.2.1...v0.2.2) (2019-02-14)
 
 
