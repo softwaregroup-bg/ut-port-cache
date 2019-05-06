@@ -47,7 +47,9 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
         }
         try {
             if (!this.methods[segment]) this.methods[segment] = this.createPolicy({segment});
-            return this.methods[segment][cache.operation].call(this, {id, value: params[0], ttl: cache.ttl});
+            let value = params[0];
+            if (value === undefined && cache.operation === 'set') cache.operation = 'drop';
+            return this.methods[segment][cache.operation].call(this, {id, value, ttl: cache.ttl});
         } catch (e) {
             throw this.errors.cachePort(e);
         };
