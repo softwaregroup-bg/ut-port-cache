@@ -1,3 +1,7 @@
+## [0.3.2](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.3.1...v0.3.2) (2020-01-17)
+
+
+
 ## [0.3.1](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.3.0...v0.3.1) (2019-05-06)
 
 

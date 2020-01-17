@@ -1,6 +1,6 @@
 {
   "name": "ut-port-cache",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "UT Port Cache",
   "main": "index.js",
   "scripts": {
