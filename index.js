@@ -1,5 +1,5 @@
 'use strict';
-const Catbox = require('catbox');
+const Catbox = require('@hapi/catbox');
 const errors = require('./errors.json');
 const url = require('url');
 
@@ -14,22 +14,25 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
             policy: [/* {options, segment}, {options, segment} */] // array of catbox policies
         };
     }
+
     init(...params) {
         Object.assign(this.errors, registerErrors(errors));
         const {engine, options} = this.config.client;
-        this.client = new Catbox.Client(engine || require('catbox-memory'), options);
+        this.client = new Catbox.Client(engine || require('@hapi/catbox-memory'), options);
         return super.init(...params);
     }
+
     async start(...params) {
         await this.client.start();
         this.pull(this.exec);
         return super.start(...params);
     }
+
     exec(...params) {
-        let $meta = params && params.length > 1 && params[params.length - 1];
-        let methodName = $meta && $meta.method;
+        const $meta = params && params.length > 1 && params[params.length - 1];
+        const methodName = $meta && $meta.method;
         if (!methodName) throw utBus.errors['bus.missingMethod']();
-        let cache = $meta && $meta.cache;
+        const cache = $meta && $meta.cache;
         if (!cache) throw this.errors['cachePort.missingCache']({params: {methodName}});
         if (!['get', 'set', 'drop', 'testAndSet', 'touch'].includes(cache.operation)) throw this.errors['cachePort.missingOperation']({params: {methodName, operation: cache.operation}});
         let segment = cache.key && cache.key.segment;
@@ -41,19 +44,20 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
             }
             segment = cacheParams ? methodName + '?' + cacheParams.toString() : methodName;
         }
-        let id = cache.key && cache.key.id;
+        const id = cache.key && cache.key.id;
         if (id == null) {
             throw this.errors['cachePort.missingId']({params: {methodName}});
         }
         try {
             if (!this.methods[segment]) this.methods[segment] = this.createPolicy({segment});
-            let value = params[0];
+            const value = params[0];
             if (value === undefined && cache.operation === 'set') cache.operation = 'drop';
             return this.methods[segment][cache.operation].call(this, {id, value, ttl: cache.ttl});
         } catch (e) {
             throw this.errors.cachePort(e);
         };
     }
+
     createPolicy({options, segment}) {
         const policy = new Catbox.Policy({
             ...options,
@@ -91,6 +95,7 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
             }
         };
     }
+
     handlers() {
         const handlers = {};
         if (Array.isArray(this.config.policy)) {
@@ -100,6 +105,7 @@ module.exports = ({utPort, registerErrors, utBus}) => class CachePort extends ut
         }
         return handlers;
     }
+
     stop(...params) {
         this.client && this.client.stop();
         return super.stop(...params);
