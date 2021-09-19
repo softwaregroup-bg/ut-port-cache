@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.3.2...v0.4.0) (2021-09-19)
+
+
+### Features
+
+* fix to official @hapi/catbox ([9b7ccad](https://github.com/softwaregroup-bg/ut-port-cache/commit/9b7ccadee4c37ced2a382fb71c65e71de0d39daa))
+
+
+
 ## [0.3.2](https://github.com/softwaregroup-bg/ut-port-cache/compare/v0.3.1...v0.3.2) (2020-01-17)
 
 
